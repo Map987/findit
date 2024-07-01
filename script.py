@@ -8,7 +8,7 @@ urllib3.disable_warnings()
 
 # 基础URL和输出文件
 base_url = 'https://esercenti.luckyred.it/films/'
-output_file = '/valid_urls.txt'  # 输出文件名
+output_file = 'valid_urls.txt'  # 输出文件名
 max_length = 20  # 设置最大组合长度
 max_execution_time = 4 * 3600  # 5小时转换为秒
 
