@@ -8,12 +8,12 @@ urllib3.disable_warnings()
 
 # 基础URL和输出文件
 base_url = 'https://esercenti.luckyred.it/films/'
-output_file = '/content/valid_urls.txt'  # 输出文件名
-max_length = 2  # 设置最大组合长度
-max_execution_time = 5 * 3600  # 5小时转换为秒
+output_file = '/valid_urls.txt'  # 输出文件名
+max_length = 20  # 设置最大组合长度
+max_execution_time = 4 * 3600  # 5小时转换为秒
 
 # 用户指定的开始点
-start_point = 'bl'
+start_point = ''
 
 def generate_combinations(prefix, length, start_combination, start_length):
     if len(prefix) >= start_length and prefix < start_combination:
