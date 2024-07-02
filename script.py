@@ -7,7 +7,7 @@ import time
 urllib3.disable_warnings()
 
 # 基础URL和输出文件
-base_url = 'https://esercenti.luckyred.it/films/'
+base_url = 'https://esercenti.luckyred.it/film/'
 output_file = 'valid_urls.txt'  # 输出文件名
 max_length = 20  # 设置最大组合长度在 上一层 max_length有效的继续下一层查找，要不然会指数增加耗时
 max_execution_time = 5 * 3600  # 设置最大执行时间为5分钟（例如）
