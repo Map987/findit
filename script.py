@@ -13,7 +13,7 @@ max_length = 20  # 设置最大组合长度
 max_execution_time = 4 * 3600  # 5小时转换为秒
 
 # 用户指定的开始点
-start_point = ''
+start_point = '-may'
 
 def generate_combinations(prefix, length, start_combination, start_length):
     if len(prefix) >= start_length and prefix < start_combination:
