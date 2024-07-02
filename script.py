@@ -1,29 +1,26 @@
 import requests
 import urllib3
-import signal
-import time
 
 # 禁用警告
 urllib3.disable_warnings()
 
 # 基础URL和输出文件
-base_url = 'https://esercenti.luckyred.it/films/'
+base_url = 'https://esercenti.luckyred.it/film/'
 output_file = 'valid_urls.txt'  # 输出文件名
 max_length = 20  # 设置最大组合长度
-max_execution_time = 4 * 3600  # 5小时转换为秒
 
 # 用户指定的开始点
-start_point = '-may'
+start_point = 'b---'
 
-def generate_combinations(prefix, length, start_combination, start_length):
-    if len(prefix) >= start_length and prefix < start_combination:
+def generate_combinations(prefix, length, valid_prefixes):
+    if not valid_prefixes:
         return []
-    if length == 0:
-        return [prefix] if len(prefix) >= start_length else []
     combinations = []
     for char in '-abcdefghijklmnopqrstuvwxyz':
-        new_prefix = prefix + char
-        combinations.extend(generate_combinations(new_prefix, length - 1, start_combination, start_length))
+        for valid_prefix in valid_prefixes:
+            new_prefix = valid_prefix + char
+            if len(new_prefix) == length:
+                combinations.append(new_prefix)
     return combinations
 
 def check_url(url):
@@ -35,22 +32,15 @@ def write_valid_url(url):
         file.write(url + '\n')
     print(f"Found valid URL: {url}")
 
-def timeout_handler(signum, frame):
-    raise Exception("Execution time limit reached")
+# 初始化有效前缀列表
+valid_prefixes = [start_point]
 
-# 设置定时器
-signal.signal(signal.SIGALRM, timeout_handler)
-signal.alarm(max_execution_time)
-
-try:
-    # 生成所有可能的字母组合
-    for length in range(1, max_length + 1):
-        for combination in generate_combinations('', length, start_point, len(start_point)):
-            url = f"{base_url}{combination}"
-            if check_url(url):
-                write_valid_url(url)
-except Exception as e:
-    print(f"Error: {e}")
-finally:
-    # 取消定时器
-    signal.alarm(0)
+# 生成所有可能的字母组合
+for length in range(len(start_point), max_length + 1):
+    new_valid_prefixes = []
+    for combination in generate_combinations('', length, valid_prefixes):
+        url = f"{base_url}{combination}"
+        if check_url(url):
+            write_valid_url(url)
+            new_valid_prefixes.append(combination)
+    valid_prefixes = new_valid_prefixes
