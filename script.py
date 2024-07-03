@@ -2,18 +2,18 @@ import requests
 import urllib3
 import signal
 import time
-import os
 
 # 禁用警告
 urllib3.disable_warnings()
 
 # 基础URL和输出文件
-base_url = 'https://esercenti.luckyred.it/film/'
-output_file = 'valid_urls.txt'  # 输出文件名
-start_point_config = 'start_point.config'  # 配置文件名
-temp_file = 'temp_urls.txt'  # 临时文件名
-max_length = 20  # 设置最大组合长度
-max_execution_time = 5 * 3600  # 设置最大执行时间为5小时
+base_url = 'https://esercenti.luckyred.it/films/'
+output_file = '/content/valid_urls.txt'  # 输出文件名
+max_length = 3  # 设置最大组合长度
+max_execution_time = 5 * 60  # 设置最大执行时间为5分钟（例如）
+
+# 用户指定的开始点
+start_point = 'an'
 
 def generate_combinations(prefix, length, valid_prefixes):
     if not valid_prefixes:
@@ -34,16 +34,19 @@ def write_valid_url(url):
     with open(output_file, 'a') as file:
         file.write(url + '\n')
     print(f"Found valid URL: {url}")
-    # 将有效的URL写入临时文件
-    with open(temp_file, 'a') as file:
-        file.write(url + '\n')
 
-def timeout_handler(signum, frame):
-    raise Exception("Execution time limit reached")
+def load_valid_prefixes(length):
+    valid_prefixes = set()
+    with open(output_file, 'r') as file:
+        for line in file:
+            url = line.strip()
+            if len(url) == length:
+                valid_prefixes.add(url[:-1])  # 移除最后一个字符以获取前缀
+    return list(valid_prefixes)
 
-# 读取start_point.config文件获取start_point
-with open(start_point_config, 'r') as file:
-    start_point = file.read().strip()
+def update_start_point(new_prefix):
+    with open('/content/start_point.config', 'w') as file:
+        file.write(new_prefix)
 
 # 设置定时器
 signal.signal(signal.SIGALRM, timeout_handler)
@@ -51,7 +54,11 @@ signal.alarm(max_execution_time)
 
 try:
     # 初始化有效前缀列表
-    valid_prefixes = [start_point]
+    valid_prefixes = load_valid_prefixes(max_length - 1)
+
+    # 如果有效前缀列表为空，则使用start_point
+    if not valid_prefixes:
+        valid_prefixes = [start_point]
 
     # 生成所有可能的字母组合
     for length in range(len(start_point), max_length + 1):
@@ -59,19 +66,15 @@ try:
         for combination in generate_combinations('', length, valid_prefixes):
             url = f"{base_url}{combination}"
             if check_url(url):
-                write_valid_url(url)  # 更新last_valid_url变量
+                write_valid_url(url)
                 new_valid_prefixes.append(combination)
+                update_start_point(combination)  # 更新start_point
         valid_prefixes = new_valid_prefixes
 except Exception as e:
     print(f"Error: {e}")
 finally:
     # 取消定时器
     signal.alarm(0)
-
-    # 将临时文件的内容追加到start_point.config文件中
-    with open(temp_file, 'r') as file:
-        with open(start_point_config, 'a') as file:
-            file.writelines(file)
-
-    # 清理临时文件
-    os.remove(temp_file)
+    # 如果找到了有效的URL，则将其写入配置文件
+    if new_valid_prefixes:
+        update_start_point(new_valid_prefixes[-1])
