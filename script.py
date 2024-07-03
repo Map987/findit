@@ -28,7 +28,7 @@ def check_url(url):
     response = requests.get(url, verify=False)
     return response.status_code == 200
 
-def write_valid_url(url):
+def write_valid_url(url, last_valid_url):
     with open(output_file, 'a') as file:
         file.write(url + '\n')
     print(f"Found valid URL: {url}")
@@ -45,6 +45,8 @@ with open(start_point_config, 'r') as file:
 signal.signal(signal.SIGALRM, timeout_handler)
 signal.alarm(max_execution_time)
 
+last_valid_url = None  # 初始化last_valid_url变量
+
 try:
     # 初始化有效前缀列表
     valid_prefixes = [start_point]
@@ -55,7 +57,7 @@ try:
         for combination in generate_combinations('', length, valid_prefixes):
             url = f"{base_url}{combination}"
             if check_url(url):
-                last_valid_url = write_valid_url(url)
+                last_valid_url = write_valid_url(url, last_valid_url)  # 更新last_valid_url变量
                 new_valid_prefixes.append(combination)
         valid_prefixes = new_valid_prefixes
 except Exception as e:
@@ -65,5 +67,6 @@ finally:
     signal.alarm(0)
 
     # 更新start_point.config文件
-    with open(start_point_config, 'w') as file:
-        file.write(last_valid_url.rsplit('/', 1)[-1] + '\n')
+    if last_valid_url:
+        with open(start_point_config, 'w') as file:
+            file.write(last_valid_url.rsplit('/', 1)[-1] + '\n')
