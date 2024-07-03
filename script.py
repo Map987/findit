@@ -8,12 +8,12 @@ urllib3.disable_warnings()
 
 # 基础URL和输出文件
 base_url = 'https://esercenti.luckyred.it/films/'
-output_file = '/content/valid_urls.txt'  # 输出文件名
-max_length = 3  # 设置最大组合长度
-max_execution_time = 5 * 60  # 设置最大执行时间为5分钟（例如）
+output_file = 'valid_urls.txt'  # 输出文件名
+max_length = 20  # 设置最大组合长度
+max_execution_time = 5 * 3600  # 设置最大执行时间为5分钟（例如）
 
 # 用户指定的开始点
-start_point = 'an'
+start_point = 'b---'
 
 def generate_combinations(prefix, length, valid_prefixes):
     if not valid_prefixes:
@@ -45,8 +45,11 @@ def load_valid_prefixes(length):
     return list(valid_prefixes)
 
 def update_start_point(new_prefix):
-    with open('/content/start_point.config', 'w') as file:
+    with open('start_point.config', 'w') as file:
         file.write(new_prefix)
+
+def timeout_handler(signum, frame):
+    raise Exception("Execution time limit reached")
 
 # 设置定时器
 signal.signal(signal.SIGALRM, timeout_handler)
