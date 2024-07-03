@@ -55,6 +55,9 @@ def timeout_handler(signum, frame):
 signal.signal(signal.SIGALRM, timeout_handler)
 signal.alarm(max_execution_time)
 
+# Initialize new_valid_prefixes outside the try block
+new_valid_prefixes = []  
+
 try:
     # 初始化有效前缀列表
     valid_prefixes = load_valid_prefixes(max_length - 1)
@@ -65,14 +68,14 @@ try:
 
     # 生成所有可能的字母组合
     for length in range(len(start_point), max_length + 1):
-        new_valid_prefixes = []
+        # new_valid_prefixes = []  # Move this inside the loop to reset for each length
         for combination in generate_combinations('', length, valid_prefixes):
             url = f"{base_url}{combination}"
             if check_url(url):
                 write_valid_url(url)
                 new_valid_prefixes.append(combination)
                 update_start_point(combination)  # 更新start_point
-        valid_prefixes = new_valid_prefixes
+        valid_prefixes = new_valid_prefixes # Update valid_prefixes after each length
 except Exception as e:
     print(f"Error: {e}")
 finally:
@@ -81,3 +84,7 @@ finally:
     # 如果找到了有效的URL，则将其写入配置文件
     if new_valid_prefixes:
         update_start_point(new_valid_prefixes[-1])
+
+# 在finally块之后，我们可以安全地访问new_valid_prefixes
+if new_valid_prefixes:
+    print(f"Updated start_point to {new_valid_prefixes[-1]}")
