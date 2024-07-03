@@ -2,6 +2,7 @@ import requests
 import urllib3
 import signal
 import time
+import os
 
 # 禁用警告
 urllib3.disable_warnings()
@@ -10,6 +11,7 @@ urllib3.disable_warnings()
 base_url = 'https://esercenti.luckyred.it/film/'
 output_file = 'valid_urls.txt'  # 输出文件名
 start_point_config = 'start_point.config'  # 配置文件名
+temp_file = 'temp_urls.txt'  # 临时文件名
 max_length = 20  # 设置最大组合长度
 max_execution_time = 5 * 3600  # 设置最大执行时间为5小时
 
@@ -28,11 +30,13 @@ def check_url(url):
     response = requests.get(url, verify=False)
     return response.status_code == 200
 
-def write_valid_url(url, last_valid_url):
+def write_valid_url(url):
     with open(output_file, 'a') as file:
         file.write(url + '\n')
     print(f"Found valid URL: {url}")
-    return url
+    # 将有效的URL写入临时文件
+    with open(temp_file, 'a') as file:
+        file.write(url + '\n')
 
 def timeout_handler(signum, frame):
     raise Exception("Execution time limit reached")
@@ -45,8 +49,6 @@ with open(start_point_config, 'r') as file:
 signal.signal(signal.SIGALRM, timeout_handler)
 signal.alarm(max_execution_time)
 
-last_valid_url = None  # 初始化last_valid_url变量
-
 try:
     # 初始化有效前缀列表
     valid_prefixes = [start_point]
@@ -57,7 +59,7 @@ try:
         for combination in generate_combinations('', length, valid_prefixes):
             url = f"{base_url}{combination}"
             if check_url(url):
-                last_valid_url = write_valid_url(url, last_valid_url)  # 更新last_valid_url变量
+                write_valid_url(url)  # 更新last_valid_url变量
                 new_valid_prefixes.append(combination)
         valid_prefixes = new_valid_prefixes
 except Exception as e:
@@ -66,7 +68,10 @@ finally:
     # 取消定时器
     signal.alarm(0)
 
-    # 更新start_point.config文件
-    if last_valid_url:
-        with open(start_point_config, 'w') as file:
-            file.write(last_valid_url.rsplit('/', 1)[-1] + '\n')
+    # 将临时文件的内容追加到start_point.config文件中
+    with open(temp_file, 'r') as file:
+        with open(start_point_config, 'a') as file:
+            file.writelines(file)
+
+    # 清理临时文件
+    os.remove(temp_file)
