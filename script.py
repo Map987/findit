@@ -28,7 +28,7 @@ def check_url(url):
     response = requests.get(url, verify=False)
     return response.status_code == 200
 
-def write_valid_url(url, last_valid_url):
+def write_valid_url(url):
     with open(output_file, 'a') as file:
         file.write(url + '\n')
     print(f"Found valid URL: {url}")
@@ -55,7 +55,7 @@ try:
         for combination in generate_combinations('', length, valid_prefixes):
             url = f"{base_url}{combination}"
             if check_url(url):
-                last_valid_url = write_valid_url(url, last_valid_url)
+                last_valid_url = write_valid_url(url)
                 new_valid_prefixes.append(combination)
         valid_prefixes = new_valid_prefixes
 except Exception as e:
