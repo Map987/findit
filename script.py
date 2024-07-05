@@ -10,7 +10,7 @@ urllib3.disable_warnings()
 base_url = 'https://esercenti.luckyred.it/film/'
 output_file = 'valid_urls.txt'  # 输出文件名
 max_length = 20  # 设置最大组合长度
-max_execution_time = 4 * 3600  # 4小时转换为秒
+max_execution_time = 5 * 3600  # 4小时转换为秒
 
 # 读取已存在的有效URL
 def read_valid_prefixes(file_name):
