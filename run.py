@@ -49,6 +49,7 @@ for film_url in film_urls:
     film_page_soup = BeautifulSoup(film_page_response.text, 'html.parser')
     dropbox_links_on_page = film_page_soup.find_all('a', href=True)
     dropbox_links = [link['href'] for link in dropbox_links_on_page if link['href'].startswith('https://www.dropbox.com/')]
+    print(dropbox_links)
 
     # 检查 film_url 是否已存在于字典中
     if film_url in film_urls_with_dropbox:
