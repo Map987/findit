@@ -18,8 +18,8 @@ parser.add_argument('--password', type=str, help='Cookie value')
 #args = parser.parse_args()
 
 # 从命令行参数中获取cookie的name和value
-#cookie_name = args.account
-#cookie_value = args.password
+account_name = args.account
+account_value = args.password
 
 #cookie = {
    # "name": cookie_name,
@@ -57,8 +57,8 @@ if response.status_code == 200:
         login_data = {
             'action': 'user_registration_ajax_login_submit',
             'security': security_nonce,
-            'username': 'categorydev',  # 替换为您的用户名
-            'password': 'Jabgau.465',  # 替换为您的密码
+            'username': account_name,  # 替换为您的用户名
+            'password': account_value,  # 替换为您的密码
             'rememberme': 'forever',
             'redirect': '%2F'
         }
@@ -78,11 +78,11 @@ if response.status_code == 200:
 else:
     print(f"请求失败，状态码：{response.status_code}")
 cookies = login_response.cookies
-print(cookies)
+
 cookie_header = "; ".join(f"{cookie.name}={cookie.value}" for cookie in cookies)
-print(cookie_header)
+
 cookie_header += f"; {cookie_name}={cookie_value}"
-print(cookie_header)
+
 
 # 设置请求头
 headers = {
