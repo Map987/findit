@@ -15,7 +15,7 @@ parser.add_argument('--account', type=str, help='Cookie name')
 parser.add_argument('--password', type=str, help='Cookie value')
 
 # 解析参数
-#args = parser.parse_args()
+args = parser.parse_args()
 
 # 从命令行参数中获取cookie的name和value
 account_name = args.account
